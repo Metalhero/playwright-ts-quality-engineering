@@ -1,0 +1,23 @@
+{
+  "name": "playwright-ts-quality-engineering",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Metalhero/playwright-ts-quality-engineering.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Metalhero/playwright-ts-quality-engineering/issues"
+  },
+  "homepage": "https://github.com/Metalhero/playwright-ts-quality-engineering#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  }
+}
