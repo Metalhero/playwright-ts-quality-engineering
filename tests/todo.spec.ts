@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createTodoSet } from '../src/utils/todo-data';
 
 test('only the selected todo is completed', async ({ page }) => {
   const input = page.getByPlaceholder('What needs to be done?');
@@ -44,22 +45,47 @@ test('Todolist second test', async ({ page }) => {
 test('Completed filter shows only completed todos', async ({ page }) => {
   await page.goto('/todomvc');
 
-  // 1. Add two todos
+  // Add two todos
   const newTodo = page.getByPlaceholder("What needs to be done?");
   await newTodo.fill("First item");
   await newTodo.press('Enter');
   await newTodo.fill("Second item");
   await newTodo.press('Enter');
 
-  // 2. Mark only one as completed
+  // Mark the first todo as completed and click on the completed filter
   await page.getByTestId('todo-item').filter({ hasText: 'First item' }).getByRole('checkbox').check();
-
-  // 3. Click the Completed filter
   await page.getByRole('link', { name: 'Completed' }).click();
-
-  // 4. Verify exactly one todo is visible
   await expect(page.getByTestId('todo-item')).toHaveCount(1);
-
-  // 5. Verify it is the correct todo
   await expect(page.getByTestId('todo-item').filter({ hasText: 'First item' })).toBeVisible();
+});
+
+test('Todo status matches the expected data', async ({ page }) => {
+  const todos = createTodoSet();
+  const input = page.getByPlaceholder('What needs to be done?');
+  await page.goto("/todomvc/");
+
+  // Add todos to the list
+  for (const todo of todos) {
+    await input.fill(todo.title);
+    await input.press('Enter');
+  }
+
+  // Verify that the status of each todo matches the expected data
+  for (const todo of todos) {
+    const item = page.getByTestId('todo-item').filter({ hasText: todo.title });
+    const checkbox = item.getByRole('checkbox');
+
+    // Check the checkbox if the todo is completed
+    if (todo.status === "completed") {
+      await checkbox.check();
+    }
+
+    // Verify the checkbox state matches the expected status
+    if (todo.status === "completed") {
+      await expect(checkbox).toBeChecked();
+    } else {
+      await expect(checkbox).not.toBeChecked();
+    }
+  }
+  await expect(page.getByTestId('todo-item')).toHaveCount(todos.length);
 });
