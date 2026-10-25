@@ -1,41 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-test('Todolist', async ({ page }) => {
-  const newTodo = page.getByPlaceholder("What needs to be done?");
-  const firstItem = page.getByText('Learn Playwright');
-  const todoItems = page.getByTestId('todo-item');
+test('only the selected todo is completed', async ({ page }) => {
+  const input = page.getByPlaceholder('What needs to be done?');
+  const appleTodo = page.getByTestId('todo-item').filter({ hasText: 'Apple' });
+  const melonTodo = page.getByTestId('todo-item').filter({ hasText: 'Melon' });
+  const appleCbox = appleTodo.getByRole('checkbox');
+  const melonCbox = melonTodo.getByRole('checkbox');
 
-  // Go to the todomvc demo page
-  await page.goto('https://demo.playwright.dev/todomvc/?utm_source=chatgpt.com#/');
-  await expect(firstItem).toBeHidden();
-  await newTodo.fill("Learn Playwright");
-  await newTodo.press('Enter');
-  await expect(firstItem).toBeVisible();
-  await expect(firstItem).toHaveCount(1);
+  // Go to the todomvc demo page and add two todo items
+  await page.goto('/todomvc');
+  await input.fill('Apple');
+  await input.press('Enter');
+  await input.fill('Melon');
+  await input.press('Enter');
 
-  // Add another todo item
-  await newTodo.fill("Learn TypeScript");
-  await newTodo.press('Enter');
-  await expect(todoItems).toHaveCount(2);
-
-  // Mark the items as completed
-  await expect(await page.locator('.completed')).toHaveCount(0);
-  await todoItems.first().getByRole('checkbox').isEnabled();
-  await todoItems.first().getByRole('checkbox').check();
-  await expect(await page.locator('.completed')).toHaveCount(1);
-  await expect(todoItems.nth(1)).not.toHaveClass(/completed/);
-  await todoItems.nth(1).getByRole('checkbox').check();
-
-  // Verify that the items are marked as completed
-  await expect(todoItems.first()).toHaveClass(/completed/);
-  await expect(todoItems.nth(1)).toHaveClass(/completed/);
+  /* Verify that both todo items are present and unchecked, 
+  then check the Apple todo and verify that only it is checked*/
+  await expect(page.getByTestId('todo-item')).toHaveCount(2);
+  await expect(appleCbox).not.toBeChecked();
+  await expect(melonCbox).not.toBeChecked();
+  await appleCbox.check();
+  await expect(appleCbox).toBeChecked();
+  await expect(melonCbox).not.toBeChecked();
 });
 
 test('Todolist second test', async ({ page }) => {
   const newTodo = page.getByPlaceholder("What needs to be done?");
 
   // Go to the todomvc demo page and add two todo items
-  await page.goto('https://demo.playwright.dev/todomvc/?utm_source=chatgpt.com#/');
+  await page.goto('/todomvc');
   await newTodo.fill("Apple");
   await newTodo.press('Enter');
   await newTodo.fill("Pear");
@@ -46,4 +39,27 @@ test('Todolist second test', async ({ page }) => {
   await page.getByRole('link', { name: 'Active' }).click();
   await expect(page.getByTestId('todo-item')).toHaveCount(1);
   await expect(page.getByTestId('todo-item').filter({ hasText: 'Pear' })).toBeVisible();
+});
+
+test('Completed filter shows only completed todos', async ({ page }) => {
+  await page.goto('/todomvc');
+
+  // 1. Add two todos
+  const newTodo = page.getByPlaceholder("What needs to be done?");
+  await newTodo.fill("First item");
+  await newTodo.press('Enter');
+  await newTodo.fill("Second item");
+  await newTodo.press('Enter');
+
+  // 2. Mark only one as completed
+  await page.getByTestId('todo-item').filter({ hasText: 'First item' }).getByRole('checkbox').check();
+
+  // 3. Click the Completed filter
+  await page.getByRole('link', { name: 'Completed' }).click();
+
+  // 4. Verify exactly one todo is visible
+  await expect(page.getByTestId('todo-item')).toHaveCount(1);
+
+  // 5. Verify it is the correct todo
+  await expect(page.getByTestId('todo-item').filter({ hasText: 'First item' })).toBeVisible();
 });
