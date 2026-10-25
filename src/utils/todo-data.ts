@@ -1,17 +1,17 @@
 import { TodoData, TodoStatus } from "../types/todo.types";
 
 export function createTodo(
-  title: string,
+  value: string,
   status: TodoStatus = "active"
 ): TodoData {
-  const normalizedTitle = title.trim();
+  const normalizedTitle = value.trim();
 
-  if (!normalizedTitle) {
+  if (!normalizedTitle || normalizedTitle.trim().length === 0) {
     throw new Error("Todo title cannot be empty or whitespace.");
   }
 
   return {
-    title: normalizedTitle,
+    value: normalizedTitle,
     status
   };
 }
@@ -21,6 +21,6 @@ export function createTodoSet(): readonly TodoData[] {
     createTodo("Apple"),
     createTodo("Banana"),
     createTodo("Melon"),
-    createTodo("Pear"),
+    createTodo("Pear", "completed"),
   ];
 }
