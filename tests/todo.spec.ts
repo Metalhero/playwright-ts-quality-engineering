@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createTodoSet } from '../src/utils/todo-data';
+import { createTodo, createTodoSet } from '../src/utils/todo-data';
 
 test('only the selected todo is completed', async ({ page }) => {
     const input = page.getByPlaceholder('What needs to be done?');
@@ -69,6 +69,8 @@ test('Todo status matches the expected data', async ({ page }) => {
         await input.fill(todo.value);
         await input.press('Enter');
     }
+
+    expect(() => createTodo(" ")).toThrow("Todo title cannot be empty or whitespace.");
 
     // Verify that the status of each todo matches the expected data
     for (const todo of todos) {
