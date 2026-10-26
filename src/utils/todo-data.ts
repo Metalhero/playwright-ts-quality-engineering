@@ -1,4 +1,4 @@
-import { TodoData, TodoStatus } from "../types/todo.types";
+import type { TodoData, TodoStatus } from "../types/todo.types";
 
 export function createTodo(
     value: string,
