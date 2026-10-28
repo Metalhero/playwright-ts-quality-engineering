@@ -23,7 +23,7 @@ const retryPolicy: Record<Runtime, number> = {
  */
 export default defineConfig({
     testDir: './tests',
-    timeout: getTestTimeout(),
+    timeout: parseTimeout(process.env.PW_TEST_TIMEOUT_MS),
     expect: {
         timeout: parseTimeout(process.env.PW_TEST_TIMEOUT_MS),
     },
