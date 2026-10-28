@@ -25,7 +25,7 @@ export default defineConfig({
     testDir: './tests',
     timeout: parseTimeout(process.env.PW_TEST_TIMEOUT_MS),
     expect: {
-        timeout: parseTimeout(process.env.PW_TEST_TIMEOUT_MS),
+        timeout: 5_000,
     },
     /* Run tests in files in parallel */
     fullyParallel: true,
@@ -97,53 +97,3 @@ export default defineConfig({
     //   reuseExistingServer: !process.env.CI,
     // },
 });
-
-// Returns the base URL from the environment variable or a default value.
-function getBaseURL(): string {
-    const rawURL =
-        process.env.TEST_BASE_URL?.trim() ||
-        'https://demo.playwright.dev';
-
-    let parsedURL: URL;
-
-    try {
-        parsedURL = new URL(rawURL);
-    } catch {
-        throw new Error(
-            `Invalid TEST_BASE_URL: "${rawURL}"`
-        );
-    }
-
-    if (
-        parsedURL.protocol !== 'http:' &&
-        parsedURL.protocol !== 'https:'
-    ) {
-        throw new Error(
-            'TEST_BASE_URL must use HTTP or HTTPS'
-        );
-    }
-
-    return parsedURL.toString();
-}
-
-// Returns the test timeout value from the environment variable or a default value.
-function getTestTimeout(): number {
-    const rawValue = process.env.PW_TEST_TIMEOUT_MS;
-
-    if (rawValue === undefined) {
-        return 30_000;
-    }
-
-    const timeout = Number(rawValue);
-
-    if (
-        !Number.isSafeInteger(timeout) ||
-        timeout <= 0
-    ) {
-        throw new Error(
-            'PW_TEST_TIMEOUT_MS must be a positive integer'
-        );
-    }
-
-    return timeout;
-}
