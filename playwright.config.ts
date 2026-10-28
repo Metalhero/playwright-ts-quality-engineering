@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { parseBaseURL, parseTimeout } from './src/utils/runtime-config';
 
 type Runtime = 'local' | 'ci';
 
@@ -24,7 +25,7 @@ export default defineConfig({
     testDir: './tests',
     timeout: getTestTimeout(),
     expect: {
-        timeout: 5_000,
+        timeout: parseTimeout(process.env.PW_TEST_TIMEOUT_MS),
     },
     /* Run tests in files in parallel */
     fullyParallel: true,
@@ -43,7 +44,7 @@ export default defineConfig({
     use: {
         headless: runtime === 'ci',
         /* Base URL to use in actions like `await page.goto('')`. */
-        baseURL: getBaseURL(),
+        baseURL: parseBaseURL(process.env.TEST_BASE_URL),
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'retain-on-failure',

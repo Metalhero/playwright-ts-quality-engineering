@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createTodo, createTodoSet } from '../src/utils/todo-data';
+import { createTodoSet } from '../src/utils/todo-data';
 
 test('only the selected todo is completed', async ({ page }) => {
     const input = page.getByPlaceholder('What needs to be done?');
