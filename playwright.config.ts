@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { parseBaseURL, parseTimeout, parseWorkers, } from './src/utils/runtime-config';
 
 type Runtime = 'local' | 'ci';
+const configuredWorkers = parseWorkers(process.env.PW_WORKERS);
 
 const runtime: Runtime =
     process.env.CI === 'true' ? 'ci' : 'local';
@@ -34,7 +35,7 @@ export default defineConfig({
     /* Retry on CI only */
     retries: retryPolicy[runtime],
     /* Opt out of parallel tests on CI. */
-    workers: runtime === 'ci' ? 1 : parseWorkers(process.env.PW_WORKERS),
+    workers: runtime === 'ci' ? 1 : configuredWorkers,
     reporter: [
         ['list'],
         ['html', { open: 'never' }],

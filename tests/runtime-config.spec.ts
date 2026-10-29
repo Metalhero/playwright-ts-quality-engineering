@@ -20,10 +20,10 @@ test.describe('Runtime configuration validation', () => {
     test('Timeout parsing', () => {
         expect(parseTimeout(undefined)).toBe(30_000);
         expect(parseTimeout('45000')).toBe(45_000);
-        expect(() => parseTimeout('0')).toThrow('PW_TEST_TIMEOUT_MS must be a positive integer');
     });
 
     test('Rejects invalid timeout values', () => {
+        expect(() => parseTimeout('0')).toThrow('PW_TEST_TIMEOUT_MS must be a positive integer');
         expect(() => parseTimeout('12.5')).toThrow();
         expect(() => parseTimeout('abc')).toThrow();
     });
@@ -45,7 +45,7 @@ test.describe('Runtime configuration validation', () => {
         expect(parseWorkers(' 4 ')).toBe(4);
     });
 
-    for (const workerValue of ['0', '-1', '1.5', 'asd', '']) {
+    for (const workerValue of ['0', '-1', '1.5', 'asd', '', ' ', '1e2', '50%', '0x10', '9007199254740992']) {
         test(`Rejects invalid worker count: ${JSON.stringify(workerValue)}`, () => {
             expect(() => parseWorkers(workerValue)).toThrow(
                 'PW_WORKERS must be a positive decimal integer'
