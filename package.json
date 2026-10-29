@@ -8,7 +8,10 @@
         "test:ui": "playwright test --ui",
         "typecheck": "tsc --noEmit",
         "doctor": "node scripts/doctor.mjs",
-        "verify": "npm run doctor -- --check-install && npm run typecheck && npm test -- --project=chromium"
+        "verify": "npm run doctor -- --check-install && npm run typecheck && npm test -- --project=chromium",
+        "lint": "eslint tests/",
+        "lint:fix": "eslint tests/ --fix",
+        "lint:check-fix": "eslint tests/ --fix-dry-run --format json"
     },
     "repository": {
         "type": "git",
@@ -22,8 +25,11 @@
     },
     "homepage": "https://github.com/Metalhero/playwright-ts-quality-engineering#readme",
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@playwright/test": "^1.64.1",
         "@types/node": "^26.6.5",
-        "typescript": "^7.0.2"
+        "eslint-plugin-playwright": "^2.12.1",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.72.1"
     }
 }

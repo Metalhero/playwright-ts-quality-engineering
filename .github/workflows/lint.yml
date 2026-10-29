@@ -1,0 +1,41 @@
+name: ESLint Quality Check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Preview possible fixes
+        if: steps.lint.outcome == 'failure'
+        run: npm run lint:check-fix
+
+      - name: Block on lint errors
+        if: steps.lint.outcome == 'failure'
+        run: |
+          echo "::error::ESLint failed. Fix the errors before merging."
+          exit 1
