@@ -31,3 +31,25 @@ export function parseTimeout(time?: string): number {
 
     return value;
 }
+
+export function parseWorkers(value?: string): number | undefined {
+    if (value === undefined) {
+        return undefined;
+    }
+
+    const normalized = value.trim();
+
+    if (!/^[1-9]\d*$/.test(normalized)) {
+        throw new Error(
+            'PW_WORKERS must be a positive decimal integer'
+        );
+    }
+
+    const workers = Number(normalized);
+
+    if (!Number.isSafeInteger(workers) || workers < 1) {
+        throw new TypeError('PW_WORKERS must be a positive decimal integer');
+    }
+
+    return workers;
+}

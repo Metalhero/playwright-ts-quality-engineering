@@ -1,6 +1,6 @@
 
 import { test, expect } from '@playwright/test';
-import { parseBaseURL, parseTimeout, } from '../src/utils/runtime-config';
+import { parseBaseURL, parseTimeout, parseWorkers } from '../src/utils/runtime-config';
 
 test.describe('Runtime configuration validation', () => {
 
@@ -16,6 +16,7 @@ test.describe('Runtime configuration validation', () => {
         expect(() => parseBaseURL('ftp://example.com')).toThrow('TEST_BASE_URL must use HTTP or HTTPS');
     });
 
+    // Test cases for parseTimeout function
     test('Timeout parsing', () => {
         expect(parseTimeout(undefined)).toBe(30_000);
         expect(parseTimeout('45000')).toBe(45_000);
@@ -27,10 +28,27 @@ test.describe('Runtime configuration validation', () => {
         expect(() => parseTimeout('abc')).toThrow();
     });
 
-    for (const value of invalidTimeouts) {
-        test(`rejects invalid timeout: ${JSON.stringify(value)}`, () => {
-            expect(() => parseTimeout(value)).toThrow(
+    for (const timeoutValue of invalidTimeouts) {
+        test(`rejects invalid timeout: ${JSON.stringify(timeoutValue)}`, () => {
+            expect(() => parseTimeout(timeoutValue)).toThrow(
                 'PW_TEST_TIMEOUT_MS must be a positive integer'
+            );
+        });
+    }
+
+    // Test cases for parseWorkers function
+    test('uses Playwright default when not configured', () => {
+        expect(parseWorkers(undefined)).toBeUndefined();
+    });
+
+    test('accepts a positive worker count', () => {
+        expect(parseWorkers(' 4 ')).toBe(4);
+    });
+
+    for (const workerValue of ['0', '-1', '1.5', 'asd', '']) {
+        test(`Rejects invalid worker count: ${JSON.stringify(workerValue)}`, () => {
+            expect(() => parseWorkers(workerValue)).toThrow(
+                'PW_WORKERS must be a positive decimal integer'
             );
         });
     }

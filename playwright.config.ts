@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { parseBaseURL, parseTimeout } from './src/utils/runtime-config';
+import { parseBaseURL, parseTimeout, parseWorkers, } from './src/utils/runtime-config';
 
 type Runtime = 'local' | 'ci';
 
@@ -34,8 +34,7 @@ export default defineConfig({
     /* Retry on CI only */
     retries: retryPolicy[runtime],
     /* Opt out of parallel tests on CI. */
-    workers: runtime === 'ci' ? 1 : undefined,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+    workers: runtime === 'ci' ? 1 : parseWorkers(process.env.PW_WORKERS),
     reporter: [
         ['list'],
         ['html', { open: 'never' }],
