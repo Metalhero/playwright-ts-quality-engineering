@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { parseBaseURL, parseTimeout, parseWorkers, } from './src/utils/runtime-config';
+import process from 'node:process';
 
 type Runtime = 'local' | 'ci';
 const configuredWorkers = parseWorkers(process.env.PW_WORKERS);

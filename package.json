@@ -8,10 +8,11 @@
         "test:ui": "playwright test --ui",
         "typecheck": "tsc --noEmit",
         "doctor": "node scripts/doctor.mjs",
-        "verify": "npm run doctor -- --check-install && npm run typecheck && npm test -- --project=chromium",
-        "lint": "eslint tests/",
-        "lint:fix": "eslint tests/ --fix",
-        "lint:check-fix": "eslint tests/ --fix-dry-run --format json"
+        "lint": "eslint . --max-warnings 0",
+        "lint:fix": "eslint . --fix",
+        "lint:check-fix": "eslint . --fix-dry-run --format json",
+        "verify": "npm run doctor -- --check-install && npm run lint && npm run typecheck && npm test -- --project=chromium",
+        "trace": "playwright show-trace trace.zip"
     },
     "repository": {
         "type": "git",

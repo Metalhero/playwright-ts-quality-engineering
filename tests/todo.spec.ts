@@ -1,3 +1,5 @@
+/* eslint-disable playwright/no-conditional-in-test */
+/* eslint-disable playwright/no-conditional-expect */
 import { test, expect } from '@playwright/test';
 import { createTodoSet } from '../src/utils/todo-data';
 

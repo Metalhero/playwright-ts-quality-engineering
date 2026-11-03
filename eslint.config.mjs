@@ -5,7 +5,7 @@ import playwright from 'eslint-plugin-playwright';
 
 export default defineConfig([
     {
-        files: ['**/*.{js,ts}'],
+        files: ['**/*.{js,mjs,ts}'],
         extends: [
             js.configs.recommended,
             tseslint.configs.recommended,
