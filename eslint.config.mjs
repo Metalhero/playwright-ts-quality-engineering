@@ -6,6 +6,11 @@ import playwright from 'eslint-plugin-playwright';
 export default defineConfig([
     {
         files: ['**/*.{js,mjs,ts}'],
+        languageOptions: {
+            globals: {
+                console: 'readonly',
+            },
+        },
         extends: [
             js.configs.recommended,
             tseslint.configs.recommended,

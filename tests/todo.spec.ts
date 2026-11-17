@@ -100,3 +100,17 @@ test('Todo status matches the expected data', async ({ page }) => {
         await expect(checkbox).toBeChecked({ checked: todo.status === 'completed' });
     }
 });
+
+test('completed todo disappears after clearing', async ({ page }) => {
+    const newTodo = page.getByPlaceholder('What needs to be done?');
+    const todo = page.locator('.todo-list li').filter({ hasText: 'Temporary task', });
+
+    await page.goto('/todomvc/');
+    await newTodo.fill('Temporary task');
+    await newTodo.press('Enter');
+    await expect(todo).toHaveCount(1);
+    await todo.locator('.toggle').check();
+    await expect(todo).toHaveClass(/completed/);
+    await page.getByRole('button', { name: 'Clear completed', }).click();
+    await expect(todo).toHaveCount(0);
+});
