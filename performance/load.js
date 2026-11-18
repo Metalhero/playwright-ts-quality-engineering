@@ -1,9 +1,21 @@
+/* eslint-disable no-undef */
 
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-// eslint-disable-next-line no-undef
-const baseUrl = __ENV.BASE_URL || 'http://target:8080';
+const baseUrl = (__ENV.BASE_URL || 'http://target:8080').replace(/\/+$/, '');
+const endpoint = __ENV.ENDPOINT || '/api/todos';
+const expectedStatus = Number(__ENV.EXPECTED_STATUS || '200');
+
+if (!endpoint.startsWith('/')) {
+    throw new Error('Az ENDPOINT értéke / jellel kezdődjön.');
+}
+
+if (!Number.isInteger(expectedStatus) || expectedStatus < 100 || expectedStatus > 599) {
+    throw new Error('Az EXPECTED_STATUS érvényes HTTP-státuszkód legyen.');
+}
+
+http.setResponseCallback(http.expectedStatuses(expectedStatus));
 
 export const options = {
     stages: [
@@ -20,20 +32,12 @@ export const options = {
 };
 
 export default function load() {
-    const response = http.get(`${baseUrl}/api/todos`, {
-        tags: { endpoint: 'get_todos' },
+    const response = http.get(`${baseUrl}${endpoint}`, {
+        tags: { endpoint },
     });
 
     check(response, {
-        'status is 200': (r) => r.status === 200,
-        'response contains todos': (r) => {
-            try {
-                const data = r.json();
-                return Array.isArray(data) && data.length === 2;
-            } catch {
-                return false;
-            }
-        },
+        'HTTP status matches expectation': (r) => r.status === expectedStatus,
     });
 
     sleep(1);

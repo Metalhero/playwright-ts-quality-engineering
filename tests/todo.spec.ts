@@ -1,116 +1,99 @@
-/* eslint-disable playwright/no-conditional-in-test */
-/* eslint-disable playwright/no-conditional-expect */
 import { test, expect } from '@playwright/test';
+import { TodoPage } from '../src/pages/todo.page';
 import { createTodoSet } from '../src/utils/todo-data';
 
 test('only the selected todo is completed', async ({ page }) => {
-    const input = page.getByPlaceholder('What needs to be done?');
-    const appleTodo = page.getByTestId('todo-item').filter({ hasText: 'Apple' });
-    const melonTodo = page.getByTestId('todo-item').filter({ hasText: 'Melon' });
-    const appleCbox = appleTodo.getByRole('checkbox');
-    const melonCbox = melonTodo.getByRole('checkbox');
+    const todoPage = new TodoPage(page);
+    const appleCheckbox = todoPage.getTodoCheckbox('Apple');
+    const melonCheckbox = todoPage.getTodoCheckbox('Melon');
 
-    // Go to the todomvc demo page and add two todo items
-    await page.goto('/todomvc');
-    await input.fill('Apple');
-    await input.press('Enter');
-    await input.fill('Melon');
-    await input.press('Enter');
+    await todoPage.goto();
+    await todoPage.addTodos(['Apple', 'Melon']);
 
-    /* Verify that both todo items are present and unchecked, 
-    then check the Apple todo and verify that only it is checked*/
-    await expect(page.getByTestId('todo-item')).toHaveCount(2);
-    await expect(appleCbox).not.toBeChecked();
-    await expect(melonCbox).not.toBeChecked();
-    await appleCbox.check();
-    await expect(appleCbox).toBeChecked();
-    await expect(melonCbox).not.toBeChecked();
+    await expect(todoPage.getTodoItems()).toHaveCount(2);
+    await expect(appleCheckbox).not.toBeChecked();
+    await expect(melonCheckbox).not.toBeChecked();
+    await todoPage.setTodoStatus('Apple', 'completed');
+    await expect(appleCheckbox).toBeChecked();
+    await expect(melonCheckbox).not.toBeChecked();
 });
 
-test('Todolist second test', async ({ page }) => {
-    const newTodo = page.getByPlaceholder("What needs to be done?");
+test('Active filter shows only active todos', async ({ page }) => {
+    const todoPage = new TodoPage(page);
 
-    // Go to the todomvc demo page and add two todo items
-    await page.goto('/todomvc');
-    await newTodo.fill("Apple");
-    await newTodo.press('Enter');
-    await newTodo.fill("Pear");
-    await newTodo.press('Enter');
-    await page.getByTestId('todo-item').filter({ hasText: 'Apple' }).getByRole('checkbox').check();
+    await todoPage.goto();
+    await todoPage.addTodos(['Apple', 'Pear']);
+    await todoPage.setTodoStatus('Apple', 'completed');
 
-    // click on the active filter and verify that only the active item is visible
-    await page.getByRole('link', { name: 'Active' }).click();
-    await expect(page.getByTestId('todo-item')).toHaveCount(1);
-    await expect(page.getByTestId('todo-item').filter({ hasText: 'Pear' })).toBeVisible();
+    await todoPage.selectFilter('Active');
+    await expect(todoPage.getTodoItems()).toHaveCount(1);
+    await expect(todoPage.getTodoItem('Pear')).toBeVisible();
 });
 
 test('Completed filter shows only completed todos', async ({ page }) => {
-    await page.goto('/todomvc');
+    const todoPage = new TodoPage(page);
+    await todoPage.goto();
+    await todoPage.addTodos(['First item', 'Second item']);
 
-    // Add two todos
-    const newTodo = page.getByPlaceholder("What needs to be done?");
-    await newTodo.fill("First item");
-    await newTodo.press('Enter');
-    await newTodo.fill("Second item");
-    await newTodo.press('Enter');
-
-    // Mark the first todo as completed and click on the completed filter
-    await page.getByTestId('todo-item').filter({ hasText: 'First item' }).getByRole('checkbox').check();
-    await page.getByRole('link', { name: 'Completed' }).click();
-    await expect(page.getByTestId('todo-item')).toHaveCount(1);
-    await expect(page.getByTestId('todo-item').filter({ hasText: 'First item' })).toBeVisible();
+    await todoPage.setTodoStatus('First item', 'completed');
+    await todoPage.selectFilter('Completed');
+    await expect(todoPage.getTodoItems()).toHaveCount(1);
+    await expect(todoPage.getTodoItem('First item')).toBeVisible();
 });
 
 test('Todo status matches the expected data', async ({ page }) => {
+    const todoPage = new TodoPage(page);
     const todos = createTodoSet();
-    const input = page.getByPlaceholder('What needs to be done?');
-    await page.goto("/todomvc/");
+    await todoPage.goto();
+    await todoPage.addTodos(todos.map((todo) => todo.value));
 
-    // Add todos to the list
     for (const todo of todos) {
-        await input.fill(todo.value);
-        await input.press('Enter');
+        await todoPage.setTodoStatus(todo.value, todo.status);
+        await expect(todoPage.getTodoCheckbox(todo.value))
+            .toBeChecked({ checked: todo.status === 'completed' });
     }
+    await expect(todoPage.getTodoItems()).toHaveCount(todos.length);
 
-    // Verify that the status of each todo matches the expected data
+    await todoPage.addTodo(' ');
+    await expect(todoPage.getTodoItems()).toHaveCount(todos.length);
     for (const todo of todos) {
-        const item = page.getByTestId('todo-item').filter({ hasText: todo.value });
-        const checkbox = item.getByRole('checkbox');
-
-        // Check the checkbox if the todo is completed
-        if (todo.status === "completed") {
-            await checkbox.check();
-        }
-
-        // Verify the checkbox state matches the expected status
-        if (todo.status === "completed") {
-            await expect(checkbox).toBeChecked();
-        } else {
-            await expect(checkbox).not.toBeChecked();
-        }
-    }
-    await expect(page.getByTestId('todo-item')).toHaveCount(todos.length);
-
-    // Whitespace-only input must not create a todo or change existing statuses.
-    await input.fill(' ');
-    await input.press('Enter');
-    await expect(page.getByTestId('todo-item')).toHaveCount(todos.length); // Still the same number of todos
-    for (const todo of todos) {
-        const checkbox = page.getByTestId('todo-item').filter({ hasText: todo.value }).getByRole('checkbox');
-        await expect(checkbox).toBeChecked({ checked: todo.status === 'completed' });
+        await expect(todoPage.getTodoCheckbox(todo.value))
+            .toBeChecked({ checked: todo.status === 'completed' });
     }
 });
 
 test('completed todo disappears after clearing', async ({ page }) => {
-    const newTodo = page.getByPlaceholder('What needs to be done?');
-    const todo = page.locator('.todo-list li').filter({ hasText: 'Temporary task', });
+    const todoPage = new TodoPage(page);
+    const todo = todoPage.getTodoItem('Temporary task');
 
-    await page.goto('/todomvc/');
-    await newTodo.fill('Temporary task');
-    await newTodo.press('Enter');
+    await todoPage.goto();
+    await todoPage.addTodo('Temporary task');
     await expect(todo).toHaveCount(1);
-    await todo.locator('.toggle').check();
+    await todoPage.setTodoStatus('Temporary task', 'completed');
     await expect(todo).toHaveClass(/completed/);
-    await page.getByRole('button', { name: 'Clear completed', }).click();
+    await todoPage.clearCompleted();
     await expect(todo).toHaveCount(0);
+});
+
+test('completed todo can be cleared reliably', async ({ page }) => {
+    const todoPage = new TodoPage(page);
+    const title = 'Temporary task';
+    const todo = todoPage.getTodoItem(title);
+
+    await test.step('Create todo', async () => {
+        await todoPage.goto();
+        await todoPage.addTodo(title);
+
+        await expect(todo).toHaveCount(1);
+    });
+
+    await test.step('Complete todo', async () => {
+        await todoPage.setTodoStatus(title, 'completed');
+        await expect(todo).toHaveClass(/completed/);
+    });
+
+    await test.step('Clear completed todo', async () => {
+        await todoPage.clearCompleted();
+        await expect(todo).toHaveCount(0);
+    });
 });

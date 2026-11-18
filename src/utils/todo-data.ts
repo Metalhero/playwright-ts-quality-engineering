@@ -1,9 +1,6 @@
 import type { TodoData, TodoStatus } from "../types/todo.types";
 
-export function createTodo(
-    value: string,
-    status: TodoStatus = "active"
-): TodoData {
+export function createTodo(value: string, status: TodoStatus = "active"): TodoData {
     const normalizedTitle = value.trim();
 
     if (!normalizedTitle) {
