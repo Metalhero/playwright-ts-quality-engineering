@@ -65,7 +65,7 @@ A `run` a megnevezett k6 szolgáltatáshoz automatikusan aktiválja a `loadtest`
 | HTTP-válaszidő 95. percentilise | 500 ms alatt |
 | Sikeres ellenőrzések aránya | 99% felett |
 
-A k6 2.4.0 az `experimental-prometheus-rw` kimenet használatakor elavulási figyelmeztetést ír, miközben a kimenet tovább működik. A k6 v3-ra tervezik az eltávolítását. A Compose `grafana/k6:latest` képet használ, így az elérhető kimenet a futtatott verziótól függ. A helyi verziót a `docker compose -f compose.performance.yml run --rm --no-deps k6 version` paranccsal ellenőrizheted. [k6 2.4.0 kiadási megjegyzések](https://github.com/grafana/k6/releases/tag/v2.4.0#deprecations)
+A k6 2.4.0 az `experimental-prometheus-rw` kimenet használatakor elavulási figyelmeztetést ír, miközben a kimenet tovább működik. A k6 v3-ra tervezik az eltávolítását. A Compose a `grafana/k6:2.4.0` képet használja. A helyi verziót a `docker compose -f compose.performance.yml run --rm --no-deps k6 version` paranccsal ellenőrizheted. [k6 2.4.0 kiadási megjegyzések](https://github.com/grafana/k6/releases/tag/v2.4.0#deprecations)
 
 ### Prometheus és Grafana dashboard
 
