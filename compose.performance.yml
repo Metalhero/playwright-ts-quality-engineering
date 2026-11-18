@@ -8,7 +8,7 @@ services:
       - ./performance/target.mjs:/app/target.mjs:ro
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.16.0
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.enable-remote-write-receiver
@@ -20,7 +20,7 @@ services:
       - "127.0.0.1:9090:9090"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.2.6
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: localdevonly
@@ -33,7 +33,7 @@ services:
       - prometheus
 
   k6:
-    image: grafana/k6:latest
+    image: grafana/k6:2.4.0
     profiles: ["loadtest"]
     volumes:
       - ./performance:/scripts:ro
