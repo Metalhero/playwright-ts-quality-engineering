@@ -1,99 +1,77 @@
-import { test, expect } from '@playwright/test';
-import { TodoPage } from '../src/pages/todo.page';
 import { createTodoSet } from '../src/utils/todo-data';
+import { test, expect } from '../src/fixtures/todo.fixture';
 
-test('only the selected todo is completed', async ({ page }) => {
-    const todoPage = new TodoPage(page);
-    const appleCheckbox = todoPage.getTodoCheckbox('Apple');
-    const melonCheckbox = todoPage.getTodoCheckbox('Melon');
+test('only the selected todo is completed', async ({ readyTodoPage }) => {
+    const appleCheckbox = readyTodoPage.getTodoCheckbox('Apple');
+    const pineappleCheckbox = readyTodoPage.getTodoCheckbox('Pineapple');
+    const melonCheckbox = readyTodoPage.getTodoCheckbox('Melon');
 
-    await todoPage.goto();
-    await todoPage.addTodos(['Apple', 'Melon']);
+    await readyTodoPage.addTodos(['Apple', 'Pineapple', 'Melon']);
 
-    await expect(todoPage.getTodoItems()).toHaveCount(2);
+    await expect(readyTodoPage.getTodoItems()).toHaveCount(3);
     await expect(appleCheckbox).not.toBeChecked();
+    await expect(pineappleCheckbox).not.toBeChecked();
     await expect(melonCheckbox).not.toBeChecked();
-    await todoPage.setTodoStatus('Apple', 'completed');
+    await readyTodoPage.setTodoStatus('Apple', 'completed');
     await expect(appleCheckbox).toBeChecked();
+    await expect(pineappleCheckbox).not.toBeChecked();
     await expect(melonCheckbox).not.toBeChecked();
 });
 
-test('Active filter shows only active todos', async ({ page }) => {
-    const todoPage = new TodoPage(page);
+test('Active filter shows only active todos', async ({ readyTodoPage }) => {
+    await readyTodoPage.addTodos(['Apple', 'Pear']);
+    await readyTodoPage.setTodoStatus('Apple', 'completed');
 
-    await todoPage.goto();
-    await todoPage.addTodos(['Apple', 'Pear']);
-    await todoPage.setTodoStatus('Apple', 'completed');
-
-    await todoPage.selectFilter('Active');
-    await expect(todoPage.getTodoItems()).toHaveCount(1);
-    await expect(todoPage.getTodoItem('Pear')).toBeVisible();
+    await readyTodoPage.selectFilter('Active');
+    await expect(readyTodoPage.getTodoItems()).toHaveCount(1);
+    await expect(readyTodoPage.getTodoItem('Pear')).toBeVisible();
 });
 
-test('Completed filter shows only completed todos', async ({ page }) => {
-    const todoPage = new TodoPage(page);
-    await todoPage.goto();
-    await todoPage.addTodos(['First item', 'Second item']);
+test('Completed filter shows only completed todos', async ({ readyTodoPage }) => {
+    await readyTodoPage.addTodos(['First item', 'Second item']);
 
-    await todoPage.setTodoStatus('First item', 'completed');
-    await todoPage.selectFilter('Completed');
-    await expect(todoPage.getTodoItems()).toHaveCount(1);
-    await expect(todoPage.getTodoItem('First item')).toBeVisible();
+    await readyTodoPage.setTodoStatus('First item', 'completed');
+    await readyTodoPage.selectFilter('Completed');
+    await expect(readyTodoPage.getTodoItems()).toHaveCount(1);
+    await expect(readyTodoPage.getTodoItem('First item')).toBeVisible();
 });
 
-test('Todo status matches the expected data', async ({ page }) => {
-    const todoPage = new TodoPage(page);
+test('Todo status matches the expected data', async ({ readyTodoPage }) => {
     const todos = createTodoSet();
-    await todoPage.goto();
-    await todoPage.addTodos(todos.map((todo) => todo.value));
+    await readyTodoPage.addTodos(todos.map((todo) => todo.value));
 
     for (const todo of todos) {
-        await todoPage.setTodoStatus(todo.value, todo.status);
-        await expect(todoPage.getTodoCheckbox(todo.value))
+        await readyTodoPage.setTodoStatus(todo.value, todo.status);
+        await expect(readyTodoPage.getTodoCheckbox(todo.value))
             .toBeChecked({ checked: todo.status === 'completed' });
     }
-    await expect(todoPage.getTodoItems()).toHaveCount(todos.length);
+    await expect(readyTodoPage.getTodoItems()).toHaveCount(todos.length);
 
-    await todoPage.addTodo(' ');
-    await expect(todoPage.getTodoItems()).toHaveCount(todos.length);
+    await readyTodoPage.addTodo(' ');
+    await expect(readyTodoPage.getTodoItems()).toHaveCount(todos.length);
     for (const todo of todos) {
-        await expect(todoPage.getTodoCheckbox(todo.value))
+        await expect(readyTodoPage.getTodoCheckbox(todo.value))
             .toBeChecked({ checked: todo.status === 'completed' });
     }
 });
 
-test('completed todo disappears after clearing', async ({ page }) => {
-    const todoPage = new TodoPage(page);
-    const todo = todoPage.getTodoItem('Temporary task');
-
-    await todoPage.goto();
-    await todoPage.addTodo('Temporary task');
-    await expect(todo).toHaveCount(1);
-    await todoPage.setTodoStatus('Temporary task', 'completed');
-    await expect(todo).toHaveClass(/completed/);
-    await todoPage.clearCompleted();
-    await expect(todo).toHaveCount(0);
-});
-
-test('completed todo can be cleared reliably', async ({ page }) => {
-    const todoPage = new TodoPage(page);
+test('completed todo can be cleared reliably', async ({ readyTodoPage }) => {
     const title = 'Temporary task';
-    const todo = todoPage.getTodoItem(title);
+    const todo = readyTodoPage.getTodoItem(title);
 
     await test.step('Create todo', async () => {
-        await todoPage.goto();
-        await todoPage.addTodo(title);
+        await readyTodoPage.addTodo(title);
 
         await expect(todo).toHaveCount(1);
     });
 
     await test.step('Complete todo', async () => {
-        await todoPage.setTodoStatus(title, 'completed');
+        await readyTodoPage.setTodoStatus(title, 'completed');
         await expect(todo).toHaveClass(/completed/);
     });
 
     await test.step('Clear completed todo', async () => {
-        await todoPage.clearCompleted();
+        await readyTodoPage.clearCompleted();
         await expect(todo).toHaveCount(0);
     });
 });

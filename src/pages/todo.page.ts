@@ -4,7 +4,7 @@ import type { TodoStatus } from '../types/todo.types';
 export type TodoFilter = 'Active' | 'Completed';
 
 export class TodoPage {
-    constructor(private readonly page: Page) {}
+    constructor(private readonly page: Page) { }
 
     async goto(): Promise<void> {
         await this.page.goto('/todomvc/');
@@ -27,7 +27,9 @@ export class TodoPage {
     }
 
     getTodoItem(title: string): Locator {
-        return this.getTodoItems().filter({ hasText: title });
+        return this.getTodoItems().filter({
+            has: this.page.getByText(title, { exact: true })
+        });
     }
 
     getTodoCheckbox(title: string): Locator {
