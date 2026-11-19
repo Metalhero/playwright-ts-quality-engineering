@@ -12,13 +12,18 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
-        node-version: lts/*
+        node-version: '24'
+        cache: npm
     - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Verify project
-      run: npm run verify
+      run: npm ci --ignore-scripts
+    - name: Install Chromium
+      run: ./node_modules/.bin/playwright install --with-deps chromium
+    - name: Check project setup
+      run: npm run doctor -- --check-install
+    - name: Type-check
+      run: npm run typecheck
+    - name: Run Chromium tests
+      run: npm test -- --project=chromium
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

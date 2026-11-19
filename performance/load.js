@@ -3,16 +3,16 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
-const baseUrl = (__ENV.BASE_URL || 'http://target:8080').replace(/\/+$/, '');
+const baseUrl = (__ENV.BASE_URL || 'https://target:8080');
 const endpoint = __ENV.ENDPOINT || '/api/todos';
 const expectedStatus = Number(__ENV.EXPECTED_STATUS || '200');
 
 if (!endpoint.startsWith('/')) {
-    throw new Error('Az ENDPOINT értéke / jellel kezdődjön.');
+    throw new Error('The endpoint must start with a forward slash "/"');
 }
 
 if (!Number.isInteger(expectedStatus) || expectedStatus < 100 || expectedStatus > 599) {
-    throw new Error('Az EXPECTED_STATUS érvényes HTTP-státuszkód legyen.');
+    throw new Error('The EXPECTED_STATUS must be a valid HTTP status code.');
 }
 
 http.setResponseCallback(http.expectedStatuses(expectedStatus));

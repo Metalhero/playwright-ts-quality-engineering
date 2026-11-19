@@ -32,6 +32,7 @@ export default defineConfig({
     /* Run tests in files in parallel */
     fullyParallel: true,
     /* Fail the build on CI if you accidentally left test.only in the source code. */
+    failOnFlakyTests: runtime === 'ci',
     forbidOnly: runtime === 'ci',
     /* Retry on CI only */
     retries: retryPolicy[runtime],

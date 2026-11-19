@@ -23,7 +23,7 @@ services:
     image: grafana/grafana:13.2.6
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: localdevonly
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
     volumes:
       - ./monitoring/grafanaData.yml:/etc/grafana/provisioning/datasources/grafanaData.yml:ro
       - grafana-data:/var/lib/grafana
