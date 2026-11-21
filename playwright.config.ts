@@ -58,7 +58,15 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
+            testIgnore: '**/api/**',
             use: { ...devices['Desktop Chrome'] },
+        },
+        {
+            name: 'api',
+            testMatch: '**/api/**/*.spec.ts',
+            use: {
+                baseURL: 'https://jsonplaceholder.typicode.com',
+            },
         },
 
         /*{

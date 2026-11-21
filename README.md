@@ -14,7 +14,7 @@ npm run verify
 
 Linuxon a Chromium rendszerfüggőségeit is telepítheted a `npx playwright install --with-deps chromium` paranccsal.
 
-A `verify` sorrendben futtatja a telepítést is ellenőrző `doctor` parancsot, az ESLintet, a TypeScript típusellenőrzést és a Chromium teszteket. A GitHub Actions lint és Playwright workflow-ja egyaránt meghívja ezt a parancsot.
+A `verify` sorrendben futtatja a telepítést is ellenőrző `doctor` parancsot, az ESLintet, a TypeScript típusellenőrzést, valamint a Chromium és API teszteket.
 
 | Parancs | Feladat |
 | --- | --- |
@@ -23,12 +23,15 @@ A `verify` sorrendben futtatja a telepítést is ellenőrző `doctor` parancsot,
 | `npm run lint:check-fix` | Az automatikus lintjavítások előnézete JSON-ban |
 | `npm run lint:fix` | Az automatikus lintjavítások alkalmazása |
 | `npm run typecheck` | TypeScript típusellenőrzés fájlok generálása nélkül |
-| `npm test` | Az aktív Chromium projekt tesztjeinek futtatása |
+| `npm test` | A Chromium és API projektek tesztjeinek futtatása |
+| `npm test -- --project=api` | Csak az API-tesztek futtatása |
 | `npm run test:ui` | A Playwright interaktív tesztfelülete |
 | `npx playwright show-report` | A HTML tesztjelentés megnyitása |
 | `npx playwright show-trace <trace.zip útvonala>` | Egy mentett trace megnyitása |
 
 A [TodoMVC tesztek](tests/todo.spec.ts) a feladatok állapotát, a befejezett feladatok szűrését és törlését ellenőrzik. Külön tesztek fedik le a [futtatási konfigurációt](tests/runtime-config.spec.ts) és a [doctor parancsot](tests/doctor.spec.ts). A Playwright konzolos és HTML riportot készít, hiba esetén pedig megtartja a trace-t és képernyőképet ment.
+
+A `tests/api` mappában lévő tesztek a külön `api` projektben futnak. A JSONPlaceholder alapcíme (`https://jsonplaceholder.typicode.com`) a `playwright.config.ts` fájlban, az API-projekt `use.baseURL` beállításában szerepel, így a kérések relatív útvonalakat használhatnak, például `request.get('/posts/1')`. Ezekhez a tesztekhez hálózati hozzáférés szükséges, böngésző nem.
 
 | Környezeti változó | Beállítás |
 | --- | --- |
